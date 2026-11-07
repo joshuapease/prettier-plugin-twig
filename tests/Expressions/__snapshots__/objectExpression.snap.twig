@@ -14,3 +14,41 @@
 >
     Heading
 </h1>
+
+{% set constantKeys = {
+    'true': 1,
+    'false': 2,
+    'null': 3,
+    'none': 4,
+    'TRUE': 5,
+    'None': 6
+} %}
+{% set constantPrefixKeys = {
+    'nullable': 1,
+    'trueish': 2,
+    'falsey': 3,
+    'nonexistent': 4
+} %}
+{% set operatorKeys = {
+    'not': 1,
+    'in': 2,
+    'and': 3,
+    'or': 4,
+    'xor': 5,
+    'is': 6,
+    'matches': 7
+} %}
+{% set plainKeys = {
+    foo: 1,
+    notice: 2,
+    index: 3,
+    island: 4,
+    'a$b': 5,
+    'foo-bar': 6
+} %}
+{% set computedKeys = {
+    ('foo-bar'): 1,
+    ('a b'): 2,
+    ('none'): 3,
+    ('foo'): 4
+} %}

@@ -1,3 +1,5 @@
+import { format } from "prettier";
+import plugin from "src/index";
 import { run_spec } from "tests_config/run_spec";
 import { describe, expect, it } from "vitest";
 
@@ -63,6 +65,14 @@ describe("Expressions", () => {
             source: "objectExpression.twig"
         });
         await expect(actual).toMatchFileSnapshot(snapshotFile);
+
+        // Hash keys must still parse, and mean the same thing, on the next run
+        const reformatted = await format(actual, {
+            parser: "twig",
+            plugins: [plugin],
+            tabWidth: 4
+        });
+        expect(reformatted).toEqual(actual);
     });
     it("should handle operators", async () => {
         const { actual, snapshotFile } = await run_spec(import.meta.url, {

@@ -13,13 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-    BooleanLiteral,
-    Identifier,
-    NullLiteral,
-    NumericLiteral,
-    StringLiteral
-} from "../../melody-types/index.js";
+import { Identifier } from "../../melody-types/index.js";
 import {
     Types,
     setStartFromToken,
@@ -55,36 +49,11 @@ export const MacroParser = {
                 );
             } else {
                 tokens.expect(Types.ASSIGNMENT);
-                let value;
-                let node;
-                if (tokens.nextIf(Types.STRING_START)) {
-                    if (tokens.test(Types.STRING_END)) {
-                        // handle empty string as default value
-                        value = tokens.expect(Types.STRING_END);
-                        node = createNode(StringLiteral, value, "");
-                    } else {
-                        // handle non-empty string as default value
-                        value = tokens.expect(Types.STRING);
-                        tokens.expect(Types.STRING_END);
-                        node = createNode(StringLiteral, value, value.text);
-                    }
-                }
-                if (tokens.test(Types.NUMBER)) {
-                    value = tokens.expect(Types.NUMBER);
-                    node = createNode(NumericLiteral, value, value.text);
-                }
-                if (tokens.test(Types.NULL)) {
-                    value = tokens.expect(Types.NULL);
-                    node = createNode(NullLiteral, value, value.text);
-                }
-                if (tokens.test(Types.TRUE)) {
-                    value = tokens.expect(Types.TRUE);
-                    node = createNode(BooleanLiteral, value, value.text);
-                }
-                if (tokens.test(Types.FALSE)) {
-                    value = tokens.expect(Types.FALSE);
-                    node = createNode(BooleanLiteral, value, value.text);
-                }
+                // Twig accepts any constant as a default value: strings,
+                // numbers, booleans, null, sequences (`[]`) and mappings
+                // (`{}`). Parse it as a regular expression so all of those
+                // (including nested ones) are supported.
+                const node = parser.matchExpression();
                 args.push(
                     attachListItemComments(
                         createNode(Identifier, arg, arg.text, node),

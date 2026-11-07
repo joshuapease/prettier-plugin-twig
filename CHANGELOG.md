@@ -2,6 +2,9 @@
 
 ## unreleased
 
+### Bugfixes
+- [GH-143](https://github.com/zackad/prettier-plugin-twig/issues/143) Allow sequences (`[]`), mappings (`{}`) and other constant expressions as macro argument default values
+
 ---
 ## 0.18.0 (2026-10-24)
 

@@ -51,3 +51,32 @@
 %}
 
 {% endmacro %}
+
+{% macro button(
+    tag = 'button',
+    variant = 'primary',
+    label,
+    prefix = null,
+    suffix = null,
+    attrs = {})
+%}
+    <button class="{{ variant }}" {{ attr(attrs) }}>
+        {{ prefix }}{{ label }}{{ suffix }}
+    </button>
+{% endmacro %}
+
+{% macro list(
+    items = [],
+    options = {
+        sortable: false,
+        'max-items': 10,
+        tags: ['a', 'b']
+    },
+    offset = -1)
+%}
+
+{% endmacro %}
+
+{% macro short(attrs = {}, items = []) %}
+
+{% endmacro %}

@@ -98,7 +98,8 @@
 
 {% macro button(
     label, # the label
-    type = 'button' # the type
+    type = 'button', # the type
+    attrs = {} # extra attributes
 )
 %}
     <button type="{{ type }}">{{ label }}</button>

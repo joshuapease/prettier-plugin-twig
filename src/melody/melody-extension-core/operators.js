@@ -30,7 +30,8 @@ import {
     copyStart,
     copyEnd,
     copyLoc,
-    LEFT
+    LEFT,
+    RIGHT
 } from "../melody-parser/index.js";
 
 export const unaryOperators = [];
@@ -48,7 +49,9 @@ export const SpreadExpression = createUnaryOperator(
 export const UnaryNotExpression = createUnaryOperator(
     "not",
     "UnaryNotExpression",
-    50
+    50,
+    // Twig 3.15 deprecated relying on the old precedence; it becomes 70 in Twig 4
+    70
 );
 export const UnaryNeqExpression = createUnaryOperator(
     "-",
@@ -199,6 +202,8 @@ export const BinarySubExpression = createBinaryOperatorNode({
 binaryOperators.push({
     text: "~",
     precedence: 40,
+    // Twig 3.15 deprecated relying on the old precedence; it becomes 27 in Twig 4
+    futurePrecedence: 27,
     associativity: LEFT,
     createNode(token, lhs, rhs) {
         const op = new BinaryConcatExpression(lhs, rhs);
@@ -290,13 +295,15 @@ export const BinaryPowerExpression = createBinaryOperatorNode({
     text: "**",
     type: "BinaryPowerExpression",
     precedence: 200,
-    associativity: LEFT
+    associativity: RIGHT
 });
 export const BinaryNullCoalesceExpression = createBinaryOperatorNode({
     text: "??",
     type: "BinaryNullCoalesceExpression",
     precedence: 300,
-    associativity: LEFT
+    // Twig 3.15 deprecated relying on the old precedence; it becomes 5 in Twig 4
+    futurePrecedence: 5,
+    associativity: RIGHT
 });
 
 // Ref: https://plugins.craftcms.com/empty-coalesce
@@ -304,7 +311,7 @@ export const BinaryEmptyCoalesceExpression = createBinaryOperatorNode({
     text: "???",
     type: "BinaryEmptyCoalesceExpression",
     precedence: 300,
-    associativity: LEFT
+    associativity: RIGHT
 });
 //endregion
 
@@ -399,7 +406,7 @@ export function createTestExpression(text, typeName) {
 }
 
 function createBinaryOperatorNode(options) {
-    const { text, precedence, associativity } = options;
+    const { text, precedence, futurePrecedence, associativity } = options;
     const BinarySubclass = class extends BinaryExpression {
         /**
          * @param {Node} left
@@ -416,6 +423,7 @@ function createBinaryOperatorNode(options) {
     const operator = {
         text,
         precedence,
+        futurePrecedence,
         associativity
     };
     if (options.parse) {
@@ -430,7 +438,7 @@ function createBinaryOperatorNode(options) {
     return BinarySubclass;
 }
 
-function createUnaryOperator(operator, typeName, precedence) {
+function createUnaryOperator(operator, typeName, precedence, futurePrecedence) {
     const UnarySubclass = class extends UnaryExpression {
         /**
          * @param {Node} argument
@@ -446,6 +454,7 @@ function createUnaryOperator(operator, typeName, precedence) {
     unaryOperators.push({
         text: operator,
         precedence,
+        futurePrecedence,
         createNode(token, expr) {
             const op = new UnarySubclass(expr);
             setStartFromToken(op, token);

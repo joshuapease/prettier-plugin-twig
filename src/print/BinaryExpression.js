@@ -9,7 +9,8 @@ import {
     IS_ROOT_LOGICAL_EXPRESSION,
     firstValueInAncestorChain,
     findParentNode,
-    wrapExpressionIfNeeded
+    wrapExpressionIfNeeded,
+    operandNeedsParentheses
 } from "../util/index.js";
 
 const { group, line, softline, indent } = doc.builders;
@@ -55,13 +56,13 @@ const otherNeedsParentheses = (node, otherProp) => {
         ? operatorPrecedence[node[otherProp].operator]
         : Number.MAX_SAFE_INTEGER;
     return (
-        otherPrecedence < ownPrecedence ||
+        // Required to keep the meaning of the expression
+        operandNeedsParentheses(node, other, otherProp) ||
+        // Not required, but clearer
         (otherPrecedence > ownPrecedence &&
             isBinaryOther &&
             hasLogicalOperator(other)) ||
-        Node.isFilterExpression(other) ||
-        (Node.isBinaryConcatExpression(node) &&
-            Node.isConditionalExpression(other))
+        Node.isFilterExpression(other)
     );
 };
 

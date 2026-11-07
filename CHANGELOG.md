@@ -2,6 +2,9 @@
 
 ## unreleased
 
+### Bugfixes
+- [GH-2](https://github.com/joshuapease/prettier-plugin-twig/issues/2) Keep parentheses that operator precedence requires, so formatting no longer changes what an expression computes (`x ?? (y is null)`, `x - (y - 1)`, `(a + b).c`, `-(a + b)`, `(a ? b : c) ? d : e`, ...). `**` and `??` are now right-associative and `a ?: b ? c : d` is parsed as `(a ?: b) ? c : d`, as in Twig. Parentheses are also added where Twig 3.15+ deprecates relying on the precedence of `??`, `~`, `not` or filters, which changes in Twig 4
+
 ---
 ## 0.18.0 (2026-10-24)
 

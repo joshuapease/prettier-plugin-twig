@@ -2,7 +2,8 @@ import { doc } from "prettier";
 import {
     EXPRESSION_NEEDED,
     STRING_NEEDS_QUOTES,
-    wrapExpressionIfNeeded
+    wrapExpressionIfNeeded,
+    operandNeedsParentheses
 } from "../util/index.js";
 
 const { line, indent, group } = doc.builders;
@@ -16,9 +17,27 @@ const printConditionalExpression = (node, path, print) => {
         rest.push([" ", path.call(print, "consequent")]);
     }
     if (node.alternate) {
-        rest.push(line, ": ", path.call(print, "alternate"));
+        const printedAlternate = path.call(print, "alternate");
+        // Only the fallback of `?:` can need parentheses, the branches of
+        // the ternary operator extend to the end of the expression
+        const alternateNeedsParentheses =
+            !node.consequent &&
+            operandNeedsParentheses(node, node.alternate, "right");
+        rest.push(
+            line,
+            ": ",
+            alternateNeedsParentheses
+                ? ["(", printedAlternate, ")"]
+                : printedAlternate
+        );
     }
-    const parts = [path.call(print, "test"), indent(rest)];
+    const printedTest = path.call(print, "test");
+    const parts = [
+        operandNeedsParentheses(node, node.test, "left")
+            ? ["(", printedTest, ")"]
+            : printedTest,
+        indent(rest)
+    ];
     wrapExpressionIfNeeded(path, parts, node);
 
     return group(parts);

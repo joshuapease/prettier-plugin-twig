@@ -9,6 +9,7 @@ import {
     wrapInStringInterpolation,
     someParentNode,
     isMultipartExpression,
+    isOperatorExpression,
     getDeepProperty
 } from "../util/index.js";
 
@@ -88,9 +89,10 @@ const printFilterExpression = (node, path, print, options) => {
 
     const finalTarget = path.call(print, ...pathToFinalTarget);
     const isFilterBlock = isInFilterBlock(path); // Special case of FilterBlockStatement
-    const targetNeedsParentheses = isMultipartExpression(
-        getDeepProperty(node, ...pathToFinalTarget)
-    );
+    const finalTargetNode = getDeepProperty(node, ...pathToFinalTarget);
+    const targetNeedsParentheses =
+        isMultipartExpression(finalTargetNode) ||
+        isOperatorExpression(finalTargetNode);
     const parts = [];
     if (targetNeedsParentheses) {
         parts.push("(");

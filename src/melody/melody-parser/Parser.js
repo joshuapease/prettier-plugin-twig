@@ -813,7 +813,7 @@ export default class Parser {
                 }
             } else {
                 consequent = null;
-                alternate = this.matchExpression();
+                alternate = this.matchElvisFallback();
             }
             const { line, column } = condition.loc.start;
             condition = new n.ConditionalExpression(
@@ -825,6 +825,36 @@ export default class Parser {
             copyEnd(condition, alternate || consequent);
         }
         return condition;
+    }
+
+    /**
+     * Since Twig 3.17, `?:` is a right-associative binary operator with
+     * precedence 5 (below every other binary operator), so
+     * `a ?: b ? c : d` means `(a ?: b) ? c : d` and `a ?: b ?: c` means
+     * `a ?: (b ?: c)`.
+     */
+    matchElvisFallback() {
+        const tokens = this.tokens;
+        // A positive precedence stops before the ternary operator
+        const fallback = this.matchExpression(1);
+        if (
+            tokens.test(Types.QUESTION_MARK) &&
+            tokens.la(1).type === Types.COLON
+        ) {
+            tokens.next(); // consume '?'
+            tokens.next(); // consume ':'
+            const alternate = this.matchElvisFallback();
+            const { line, column } = fallback.loc.start;
+            const elvis = new n.ConditionalExpression(
+                fallback,
+                null,
+                alternate
+            );
+            elvis.loc.start = { line, column };
+            copyEnd(elvis, alternate);
+            return elvis;
+        }
+        return fallback;
     }
 
     matchArray() {

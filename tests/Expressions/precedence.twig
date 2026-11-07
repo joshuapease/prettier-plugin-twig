@@ -1,0 +1,67 @@
+{# https://github.com/joshuapease/prettier-plugin-twig/issues/2 #}
+{% set a = x ?? (y is null) %}
+{% set b = x ?? (y ? 'p' : 'q') %}
+{% set c = x - (y - 1) %}
+
+{# Left-associative operators #}
+{{ a - (b - c) }}
+{{ (a - b) - c }}
+{{ a + (b - c) }}
+{{ a / (b * c) }}
+{{ a // (b % c) }}
+{{ a and (b and c) }}
+
+{# Right-associative operators #}
+{{ a ** (b ** c) }}
+{{ (a ** b) ** c }}
+{{ a ?? (b ?? c) }}
+{{ (a ?? b) ?? c }}
+
+{# Tests #}
+{{ (a + b) is even }}
+{{ (a ?? b) is null }}
+{{ (not a) is null }}
+{{ a ~ (b is null) }}
+{{ a ** (b is null) }}
+{{ (a is null) ?? b }}
+{{ a is not null and b is not empty }}
+{{ (a is defined)|json_encode }}
+
+{# Conditional expressions #}
+{{ (a ? b : c) ~ d }}
+{{ (a ? b : c) + d }}
+{{ a ~ (b ? c : d) }}
+{{ a and (b ?: c) }}
+{{ (a ? b : c) ? d : e }}
+{{ a ? b : (c ? d : e) }}
+{{ a ? (b ? c : d) : e }}
+{{ a ?: (b ? c : d) }}
+{{ a ?: b ? c : d }}
+{{ a ?: b ?: c }}
+{{ (a ?: b) ?: c }}
+
+{# Unary operators #}
+{{ -(a + b) }}
+{{ -(a ?? b) }}
+{{ -(a is null) }}
+{{ (not a) * b }}
+{{ a * (not b) * c }}
+{{ not a and b }}
+{{ not (a and b) }}
+
+{# Member access and filters #}
+{{ (a + b).c }}
+{{ (a ?? b).c }}
+{{ (a ? b : c)[0] }}
+{{ (not a).b }}
+{{ (a ?? b)|upper }}
+
+{# Precedences that change in Twig 4 #}
+{{ a ~ b ?? c }}
+{{ a ?? b ~ c }}
+{{ 'Total: ' ~ a + b }}
+{{ a + b ~ c }}
+{{ a or b ?? c }}
+{{ a * not b }}
+{{ -a|abs }}
+{{ (a ?? b) ?: c }}

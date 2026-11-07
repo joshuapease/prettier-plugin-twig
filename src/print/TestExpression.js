@@ -1,5 +1,9 @@
 import { doc } from "prettier";
-import { findParentNode, STRING_NEEDS_QUOTES } from "../util/index.js";
+import {
+    findParentNode,
+    operandNeedsParentheses,
+    STRING_NEEDS_QUOTES
+} from "../util/index.js";
 
 const { softline, line, group, join, indent } = doc.builders;
 
@@ -21,7 +25,10 @@ const isNegator = node =>
 const printTestExpression = (node, path, print) => {
     node[STRING_NEEDS_QUOTES] = true;
     const expressionType = node.__proto__.type;
-    const parts = [path.call(print, "expression"), " is "];
+    const printedExpression = path.call(print, "expression");
+    const parts = operandNeedsParentheses(node, node.expression, "left")
+        ? ["(", printedExpression, ")", " is "]
+        : [printedExpression, " is "];
     const parent = findParentNode(path);
     const hasArguments =
         Array.isArray(node.arguments) && node.arguments.length > 0;

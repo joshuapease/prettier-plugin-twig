@@ -7,6 +7,7 @@ import {
     IS_ROOT_LOGICAL_EXPRESSION,
     GROUP_TOP_LEVEL_LOGICAL,
     wrapExpressionIfNeeded,
+    operandNeedsParentheses,
     EXPRESSION_NEEDED
 } from "../util/index.js";
 
@@ -53,19 +54,30 @@ const printUnarySubclass = (node, path, print) => {
     //    output: {{ ...vars }}
     node[EXPRESSION_NEEDED] = false;
 
-    const parts = [];
     // Example: a is not same as ... => Here, the "not" is printed "inline"
-    // Therefore, we do not output it here
-    const hasTestExpressionArgument = Node.isTestExpression(node.argument);
-    if (isLogicalOperator(node.operator) && !hasTestExpressionArgument) {
+    // by the test expression. Therefore, we do not output it here
+    const isNegatedTest =
+        isLogicalOperator(node.operator) &&
+        Node.isTestExpression(node.argument);
+    if (isLogicalOperator(node.operator) && !isNegatedTest) {
         return printLogicalExpression(node, path, print);
     }
+
+    const parts = [];
     if (node.operator === "...") {
         parts.push(node.operator);
-    } else if (!hasTestExpressionArgument) {
+    } else if (!isNegatedTest) {
         parts.push(node.operator, " ");
     }
-    parts.push(path.call(print, "argument"));
+    const printedArgument = path.call(print, "argument");
+    if (
+        !isNegatedTest &&
+        operandNeedsParentheses(node, node.argument, "right")
+    ) {
+        parts.push("(", printedArgument, ")");
+    } else {
+        parts.push(printedArgument);
+    }
     wrapExpressionIfNeeded(path, parts, node);
 
     return parts;
